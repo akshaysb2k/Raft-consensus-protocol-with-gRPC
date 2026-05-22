@@ -1,0 +1,30 @@
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - datasourceUid: 'Tempo'
+          matcherRegex: '"traceid":\s*"(\w+)"'
+          name: TraceID
+          url: "$${__value.raw}"
+          urlDisplayLabel: 'View Trace'
+          internal: true
+
+  - name: Tempo
+    type: tempo
+    url: http://tempo:3200
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: 'Loki'
+        spanStartTimeShift: '-1s'
+        spanEndTimeShift: '1s'
+        tags: [
+          {
+            key: 'service.name',
+            value: 'service_name' 
+          }
+        ]
+        filterByTraceID: true
+        filterBySpanID: true 

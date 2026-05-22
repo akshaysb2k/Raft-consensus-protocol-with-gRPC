@@ -1,0 +1,49 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "raft_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+    logs   = [otelcol.exporter.loki.to_loki.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls { insecure = true }
+  }
+}
+
+otelcol.exporter.loki "to_loki" {
+  forward_to = [loki.process.extract_labels.receiver]
+}
+
+loki.process "extract_labels" {
+  forward_to = [loki.write.local_loki.receiver]
+
+  stage.json {
+    expressions = {
+      extracted_trace_id = "traceid",
+      extracted_span_id  = "spanid",
+    }
+  }
+
+  stage.labels {
+    values = {
+      trace_id = "extracted_trace_id",
+      span_id  = "extracted_span_id",
+    }
+  }
+}
+
+loki.write "local_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

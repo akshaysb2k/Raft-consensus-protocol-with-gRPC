@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package raftpb;
+
+service RaftService {
+  // TODO: implement AppendEntries and RequestVote
+  rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesReply) {}
+  rpc RequestVote(RequestVoteReq) returns (RequestVoteReply) {}
+}
+
+message AppendEntriesRequest {
+  uint64 term = 1;
+  uint64 leaderId = 2;
+  uint64 prevLogIndex = 3;
+  uint64 prevLogTerm = 4;
+  repeated Entry entries = 5;
+  uint64 leaderCommit = 6;
+}
+
+message AppendEntriesReply {
+  uint64 term = 1;
+  bool success = 2;
+}
+
+message RequestVoteReq {
+  uint64 term = 1;
+  uint64 candidateId = 2;
+  uint64 lastLogIndex = 3;
+  uint64 lastLogTerm = 4;
+}
+
+message RequestVoteReply {
+  uint64 term = 1;
+  bool voteGranted = 2;
+}
+
+message Entry {
+  uint64 term = 1;
+  bytes command = 2;
+}

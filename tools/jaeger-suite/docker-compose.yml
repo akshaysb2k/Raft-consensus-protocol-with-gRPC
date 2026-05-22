@@ -1,0 +1,23 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.14.0
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "5778:5778"    # Jaeger agent configs
+      - "9411:9411"    # Zipkin compatible endpoint
+    volumes:
+      - ./jaeger-config.yaml:/etc/jaeger/config.yaml
+      - ./config-ui.json:/etc/jaeger/config-ui.json
+    command: ["--config", "/etc/jaeger/config.yaml"]

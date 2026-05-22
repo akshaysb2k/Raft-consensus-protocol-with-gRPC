@@ -1,0 +1,14 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "ddb",
+			"request": "launch",
+			"name": "Attach DDB",
+			"ddbpath": "${env:HOME}/.cargo/bin/ddb",
+			"configFilePath":"${workspaceFolder}/.ddb/dbg_grpc.yaml",
+			"debugger_args": [ "--file-level", "info" ],
+			"valuesFormatting": "prettyPrinters",
+		}, 
+	],
+}
